@@ -1,0 +1,46 @@
+{
+    "parserOptions": {
+        "ecmaVersion": 6,
+        "sourceType": "module",
+        "ecmaFeatures": {
+            "jsx": true
+        }
+    },
+    "env": {
+        "browser": true,
+        "jest": true
+    },
+    "plugins": [
+        "react",
+    ],
+    "extends": [
+        "eslint:recommended",
+        "plugin:react/recommended",
+        "plugin:@typescript-eslint/recommended",
+        "prettier/@typescript-eslint",
+        "plugin:prettier/recommended"
+    ],
+    "rules": {
+        "semi": "error",
+        "no-console": "off",
+        "no-unused-vars": ["error", { "argsIgnorePattern": "^_", "varsIgnorePattern": "^_" }],
+        "quotes": ["error", "double", { "avoidEscape": true, "allowTemplateLiterals": true}],
+        "react-hooks/exhaustive-deps": "off",
+        "object-curly-spacing": ["error", "always"],
+        "@typescript-eslint/explicit-module-boundary-types": "off",
+        "linebreak-style": "off",
+        "prettier/prettier": [
+            "error",
+            {
+                "endOfLine": "auto"
+            },
+            { "usePrettierrc": true }
+        ],
+        "react/display-name": "off"
+    },
+    "settings": {
+        "react": {
+            "version": "detect"
+        }
+    }
+}

@@ -1,0 +1,27 @@
+{
+  "name": "entangle",
+  "version": "0.0.1",
+  "main": "dist/entagle.cjs.js",
+  "module": "dist/entangle.es.js",
+  "unpkg": "dist/recoil.umd.js",
+  "peerDependencies": {
+    "react": "^16.8.0"
+  },
+  "description": "lightweight state management library based off recoil js using proxies",
+  "repository": "git@github.com:bennyg123/entangle.git",
+  "author": "Benny Guan",
+  "license": "MIT",
+  "private": true,
+  "devDependencies": {
+    "@types/react": "^17.0.0",
+    "@typescript-eslint/eslint-plugin": "^4.9.0",
+    "@typescript-eslint/parser": "^4.9.0",
+    "eslint-config-prettier": "^6.15.0",
+    "eslint-plugin-prettier": "^3.2.0",
+    "eslint-plugin-react": "^7.21.5",
+    "husky": "^4.3.4"
+  },
+  "dependencies": {
+    "eslint": "^7.15.0"
+  }
+}
