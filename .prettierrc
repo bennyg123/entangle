@@ -1,6 +1,6 @@
 {
-    "useTabs": false,
-    "printWidth": 120,
+    "useTabs": true,
+    "printWidth": 130,
     "trailingComma": "es5",
     "jsxBracketSameLine": false,
     "tabWidth": 4,
