@@ -12,10 +12,9 @@
 		"module": "ES6",
 		"moduleResolution": "node",
 		"resolveJsonModule": true,
-		"isolatedModules": true,
 		"noEmit": true,
 		"jsx": "react-jsx"
 	},
 	"include": ["src/*.ts", "src/*.d.ts"],
-	"exclude": ["node_modules"]
+	"exclude": ["node_modules", "src/*.spec.ts"]
 }

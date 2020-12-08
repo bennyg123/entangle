@@ -1,36 +1,37 @@
 import { useEffect, useRef, useState } from "react";
 
-export type NotNull<T> = T extends null ? T extends undefined ? never : T : T;
+export type NotNull<T> = T extends null | undefined ? never : T;
+export type NotPromise<T> = T extends Promise<T> ? never : T;
 
 // Generic ATOM type
 export type ATOM<T> = {
     proxy: { value: T };
     updater: (callback: (newValue: T) => void) => void;
     molecule: boolean;
-    defaultValue: T,
+}
+
+export type ASYNC_ATOM<T> = {
+    atom: () => Promise<ATOM<T>>;
+    molecule: boolean;
+    defaultValue: T;
 }
 
 // Generic getter that returns the proxied value from an ATOM
 const defaultGetter = <T>(atomValue: ATOM<T>) => atomValue.proxy.value;
-
-// Checks if a parameter is an async functon or a promise
-const isPromise = <T>(p: ATOM<T> | Promise<ATOM<T>>): boolean =>
-    !!p && (p.constructor.name === "AsyncFunction" || p.constructor.name === "Promise");
 
 /*
     Non exported function to create an internal atom, this is not exposed so the user
     does not see the molecule option as this should only be set by the exposed atom creation methods
 */
 const makeInternalAtom = <T>(
-    initialValue: T,
+    initialValue: NotNull<T>,
     molecule: boolean,
-    defaultValue?: T,
 ): ATOM<T> => {
     const callbacks: Function[] = [];
 
     // initial values for ATOMS cannot be null
     if (initialValue === null || initialValue === undefined) {
-        throw Error("Initial value for atom cannot be null or undefined");
+        throw new Error("Initial value for atom cannot be null or undefined");
     }
 
     /* Creates a proxy per atom with the initialValue and also adds a set trap to
@@ -50,7 +51,6 @@ const makeInternalAtom = <T>(
         proxy, // The proxy generated
         updater: (callback: Function) => callbacks.push(callback), // An updater function to add to the list of callback hooks to call during a set
         molecule, // A boolean of whether the atom passed in is a molecule or an atom 
-        defaultValue: defaultValue || initialValue, // defaultValue to be used with an asyncMolecule
     };
 };
 
@@ -134,32 +134,35 @@ export const makeMolecule = <T>(
  * Values can be awaited for async functionality
  * @param {NotNull<T>} defaultValue - 
  * DefaultValue for initial usage of the atom before it resolves for the first time
- * @returns {Promise<ATOM<NotNull<T>>>} Returns an Promise that resolves to an ATOM of Type T passed in.
- * Can be used the same way as the return value of makeAtom.
+ * @returns {ASYNC_ATOM<ATOM<NotNull<T>>>} Returns an object with an atom: Promise that resolves to an ATOM of Type T passed in.
+ * Can be used the same way as the return value of makeAtom, molecule: whether it is a molecule or not, and defaultValue: initial value of molecule.
  */
-export const makeAsyncMolecule = async <T>(
-    asyncGenerateMolecule: (get: typeof defaultGetter) => Promise<NotNull<T>>,
+export const makeAsyncMolecule = <T>(
+    asyncGenerateMolecule: (get: NotPromise<typeof defaultGetter>) => Promise<NotNull<T>>,
     defaultValue: NotNull<T>,
-) => {
-    let proxy: { value: T };
+): ASYNC_ATOM<T> => ({
+        atom: async () => {
+            let proxy: { value: T };
 
-    const atom = makeInternalAtom(
-        // The same as makeMolecule except we await values so the initial value for the atom returned is always a promise
-        await asyncGenerateMolecule((atomValue) => {
-            atomValue.updater(async () => {
-                proxy.value = await asyncGenerateMolecule(defaultGetter);
-            });
-
-            return atomValue.proxy.value;
-        }),
-        true,
-        defaultValue,
-    );
-  
-    proxy = atom.proxy;
-
-    return atom;
-};
+            const atom = makeInternalAtom(
+                // The same as makeMolecule except we await values so the initial value for the atom returned is always a promise
+                await asyncGenerateMolecule((atomValue) => {
+                    atomValue.updater(async () => {
+                        proxy.value = await asyncGenerateMolecule(defaultGetter);
+                    });
+        
+                    return atomValue.proxy.value;
+                }),
+                true,
+            );
+          
+            proxy = atom.proxy;
+        
+            return atom;
+        },
+        molecule: true,
+        defaultValue
+    });
 
 /**
  *
@@ -184,13 +187,15 @@ export const makeAsyncMolecule = async <T>(
  *                  It is important to note that while when a selector is passed in, there will be a setValue function, it does not do anything and will not update the state
  *          
  */
-export const useEntangle = <T>(atomValue: ATOM<NotNull<T>> | Promise<ATOM<NotNull<T>>>): [value: NotNull<T>, setValue: (newValue: NotNull<T>) => void] => {
-    let atomValueRef = useRef(atomValue as ATOM<T>);
-    const { proxy, defaultValue } = atomValueRef.current;
+export const useEntangle = <T>(atomValue: ATOM<NotNull<T>> | ASYNC_ATOM<NotNull<T>>): [value: NotNull<T>, setValue: (newValue: NotNull<T>) => void] => {
+    let atomValueRef = useRef(atomValue);
+    const { proxy } = atomValueRef.current as ATOM<NotNull<T>>;
+    const { defaultValue } = atomValueRef.current as ASYNC_ATOM<NotNull<T>>;
+
     const [internalState, setInternalState] = useState<T>((proxy?.value || defaultValue));
 
     useEffect(() => {
-        const atomValueIsPromise = isPromise(atomValue as ATOM<T> | Promise<ATOM<T>>);
+        const atomValueIsPromise = !!(atomValue as ASYNC_ATOM<NotNull<T>>).atom;
 
         /*  We check to see if the atomValue is a promise/async function or not
 
@@ -202,13 +207,13 @@ export const useEntangle = <T>(atomValue: ATOM<NotNull<T>> | Promise<ATOM<NotNul
         */
         if (atomValueIsPromise) {
             (async () => {
-                atomValueRef.current = (await atomValue) as ATOM<T>;
+                atomValueRef.current = await (atomValue as ASYNC_ATOM<NotNull<T>>).atom();
                 atomValueRef.current.updater(setInternalState);
                 setInternalState(atomValueRef.current.proxy.value);
             })();
         } else {
-            atomValueRef.current.proxy = (atomValue as ATOM<T>).proxy;
-            atomValueRef.current.updater(setInternalState);
+            (atomValueRef.current as ATOM<NotNull<T>>).proxy = (atomValue as ATOM<NotNull<T>>).proxy;
+            (atomValueRef.current as ATOM<NotNull<T>>).updater(setInternalState);
         }
 
         atomValueRef.current.molecule = atomValueRef.current.molecule || atomValueIsPromise;
@@ -220,6 +225,6 @@ export const useEntangle = <T>(atomValue: ATOM<NotNull<T>> | Promise<ATOM<NotNul
         internalState as NotNull<T>,
         (newValue: T) => atomValueRef.current.molecule
             ? void 0
-            : atomValueRef.current.proxy.value = newValue,
+            : (atomValueRef.current as ATOM<T>).proxy.value = newValue,
     ];
 };
