@@ -1,22 +1,18 @@
-export type NotNull<T> = T extends null ? T extends undefined ? never : T : T;
+export type NotNull<T> = T extends null ? (T extends undefined ? never : T) : T;
 
 // Generic ATOM type
 export type ATOM<T> = {
-    proxy: { value: T };
-    updater: (callback: (newValue: T) => void) => void;
-    molecule: boolean;
-    defaultValue: T,
-}
+	proxy: { value: T };
+	updater: (callback: (newValue: T) => void) => void;
+	molecule: boolean;
+	defaultValue: T;
+};
 
 export const defaultGetter: <T>(atomValue: ATOM<T>) => T;
 
 export const isPromise: <T>(p: ATOM<T> | Promise<ATOM<T>>) => boolean;
 
-export const makeInternalAtom: <T>(
-    initialValue: T,
-    molecule: boolean,
-    defaultValue?: T 
-) => ATOM<T>;
+export const makeInternalAtom: <T>(initialValue: T, molecule: boolean, defaultValue?: T) => ATOM<T>;
 
 /**
  * Creates a global atom value to be used in the useEntangle hook
@@ -32,9 +28,7 @@ export const makeInternalAtom: <T>(
  * @param {NotNull<T>} initialValue - A non-null & non-undefined value to initialize the ATOM.
  * @returns {ATOM<T>} Returns an ATOM of Type T passed in.
  */
-export const makeAtom: <T>(
-    initialValue: NotNull<T>,
-) => ATOM<NotNull<T>>;
+export const makeAtom: <T>(initialValue: NotNull<T>) => ATOM<NotNull<T>>;
 
 /**
  * Creates a molecule (an synchronous atom created using other atoms) to be used in the useEntangle hook
@@ -55,11 +49,11 @@ export const makeAtom: <T>(
  *      ...get(atomValue1),
  *      ...get(atomValue2),
  * });
- * @param {(get: ATOM<NotNull<T>>) => NotNull<T>} generateMolecule - 
+ * @param {(get: ATOM<NotNull<T>>) => NotNull<T>} generateMolecule -
  * Function that has a get argument passed in that allows it retrieve data from other atoms and construct composed values.
  * @returns {ATOM<NotNull<T>>} Returns an ATOM of Type T passed in. Can be used the same way as the return value of makeAtom.
  */
-export const makeMolecule: <T>(generateMolecule: (get: typeof defaultGetter) => NotNull<T>) => ATOM<NotNull<T>>
+export const makeMolecule: <T>(generateMolecule: (get: typeof defaultGetter) => NotNull<T>) => ATOM<NotNull<T>>;
 
 /**
  * Creates an async version of a molecule (an asynchronous atom created using other atoms)
@@ -72,37 +66,42 @@ export const makeMolecule: <T>(generateMolecule: (get: typeof defaultGetter) => 
  *      const value = await response.json()
  *      return get(atomValue) + value.body;
  * });
- * @param {(get: ATOM<NotNull<T>>) => NotNull<T>} asyncGenerateMolecule - 
+ * @param {(get: ATOM<NotNull<T>>) => NotNull<T>} asyncGenerateMolecule -
  * Async Function that has a get argument passed in that allows it retrieve data from other atoms and construct composed values.
  * Values can be awaited for async functionality
- * @param {NotNull<T>} defaultValue - 
+ * @param {NotNull<T>} defaultValue -
  * DefaultValue for initial usage of the atom before it resolves for the first time
  * @returns {Promise<ATOM<NotNull<T>>>} Returns an Promise that resolves to an ATOM of Type T passed in.
  * Can be used the same way as the return value of makeAtom.
  */
-export const makeAsyncMolecule: <T>(asyncGenerateMolecule: (get: typeof defaultGetter) => Promise<NotNull<T>>, defaultValue: NotNull<T>) => Promise<ATOM<NotNull<T>>>
+export const makeAsyncMolecule: <T>(
+	asyncGenerateMolecule: (get: typeof defaultGetter) => Promise<NotNull<T>>,
+	defaultValue: NotNull<T>
+) => Promise<ATOM<NotNull<T>>>;
 
 /**
  *
  * @example
  * // Returns [state, setState]
  * const atomValue = makeAtom("HELLO");
- * 
+ *
  * export default () => {
  *      const [state, setState] = useEntangle(atomValue);
- * 
+ *
  *      return <>
  *                  <button onClick={() => setState(state.reverse())}>Reverse String</button>
  *                  <h1>{state}</h1>
  *             </>
  * }
- * @param {ATOM<NotNull<T>> | Promise<ATOM<NotNull<T>>} atomValue - 
+ * @param {ATOM<NotNull<T>> | Promise<ATOM<NotNull<T>>} atomValue -
  * Atom generated from either (makeAtom | makeMolecule | makeAsyncMolecule), should be the same for all components who need to share state
  * @returns {[value: NotNull<T>, setValue: (newValue: NotNull<T>) => void]} [value, setValue] -
  * Returns an array of two elements (very similar to useState)
  *      - value : A variable containing the value of the shared state
  *      - setValue: A function allowing that state to be modified and those changes to propagate through the different components sharing the ATOM
  *                  It is important to note that while when a selector is passed in, there will be a setValue function, it does not do anything and will not update the state
- *          
+ *
  */
-export const useEntangle: <T>(atomValue: ATOM<NotNull<T>> | Promise<ATOM<NotNull<T>>>) => [value: NotNull<T>, setValue: (newValue: NotNull<T>) => void];
+export const useEntangle: <T>(
+	atomValue: ATOM<NotNull<T>> | Promise<ATOM<NotNull<T>>>
+) => [value: NotNull<T>, setValue: (newValue: NotNull<T>) => void];
