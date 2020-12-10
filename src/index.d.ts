@@ -105,3 +105,25 @@ export const makeAsyncMolecule: <T>(
 export const useEntangle: <T>(
 	atomValue: ATOM<NotNull<T>> | Promise<ATOM<NotNull<T>>>
 ) => [value: NotNull<T>, setValue: (newValue: NotNull<T>) => void];
+
+export type EFFECT_FUNCTION = (get: typeof defaultGetter, set: typeof defaultSetter) => void | Promise<void>;
+export const defaultSetter: <T>(atomValue: ATOM<NotNull<T>>, newValue: NotNull<T>) => void;
+export const effectGetter: <T>(callbackFn: EFFECT_FUNCTION) => <T>(atomValue: ATOM<T>) => T;
+
+/**
+ *
+ * @example
+ *
+ * const atom1 = makeAtom("Hello");
+ * const atom2 = makeAtom("");
+ *
+ * makeAtomEffect((get, set) => {
+ * 		const value1 = get(atom1);
+ * 		set(atom2, value1);
+ * });
+ *
+ * @param {(get: (atom: ATOM<NotNull<T>>) => T, set: (atom: ATOM<NotNull<T>>, value: NotNull<T>) => void) => void} -
+ * Takes in a function similar to makeMolecule and makeAsyncMolecule that has a getter and setter passed in, function can be async as well
+ * @returns void
+ */
+export const makeAtomEffect: <T>(effectFunction: (get: typeof defaultGetter, set: typeof defaultSetter) => void) => void;
