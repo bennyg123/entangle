@@ -21,7 +21,8 @@ Global state management tool for react hooks inspired by [RecoilJS](https://gith
     - [`makeMolecule`](#makemolecule)
   - [makeAsyncMolecule](#makeasyncmolecule)
   - [useEntangle](#useentangle)
-  - [Develope](#develope)
+  - [makeAtomEffect](#makeatomeffect)
+  - [Develop](#develop)
   - [Footnotes](#footnotes)
 
 ## Intro
@@ -264,7 +265,26 @@ const Component = () => {
 }
 ```
 
-## Develope
+## makeAtomEffect
+
+Sometimes we want to do side effects that update other atoms outside of a component, thats where `makeAtomEffect` comes in handy. 
+You pass it a function that has a getter and setter passed to it and in it you can get and set atoms, be aware of infinite loops though as the
+`makeAtomEffect` subscribes to all the getters it uses/calls
+
+```ts
+import { makeAtom, makeAtomEffect } from "@bennyg_123/entangle";
+
+const atomValue = makeAtom("Hello");
+const atomValue2 = makeAtom("");
+
+makeAtomEffect((get, set) => {
+    const value1 = get(atomValue);
+    set(atomValue2, value);
+})
+```
+
+
+## Develop
 
 To develop, you can fork this repo. 
 

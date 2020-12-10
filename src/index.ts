@@ -233,5 +233,22 @@ const effectGetter = (callbackFn: EFFECT_FUNCTION) => <T>(atomValue: ATOM<T>) =>
 	});
 	return atomValue.proxy.value;
 };
+
+/**
+ *
+ * @example
+ *
+ * const atom1 = makeAtom("Hello");
+ * const atom2 = makeAtom("");
+ *
+ * makeAtomEffect((get, set) => {
+ * 		const value1 = get(atom1);
+ * 		set(atom2, value1);
+ * });
+ *
+ * @param {(get: (atom: ATOM<NotNull<T>>) => T, set: (atom: ATOM<NotNull<T>>, value: NotNull<T>) => void) => void} -
+ * Takes in a function similar to makeMolecule and makeAsyncMolecule that has a getter and setter passed in, function can be async as well
+ * @returns void
+ */
 export const makeAtomEffect = (effectFunction: EFFECT_FUNCTION): Promise<void> =>
 	(async () => await effectFunction(effectGetter(effectFunction), defaultSetter))();
