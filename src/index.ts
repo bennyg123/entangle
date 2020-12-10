@@ -224,3 +224,14 @@ export const useEntangle = <T>(
 		(newValue: T) => (atomValueRef.current.molecule ? void 0 : ((atomValueRef.current as ATOM<T>).proxy.value = newValue)),
 	];
 };
+
+export type EFFECT_FUNCTION = (get: typeof defaultGetter, set: typeof defaultSetter) => void | Promise<void>;
+const defaultSetter = <T>(atomValue: ATOM<NotNull<T>>, newValue: NotNull<T>) => (atomValue.proxy.value = newValue);
+const effectGetter = (callbackFn: EFFECT_FUNCTION) => <T>(atomValue: ATOM<T>) => {
+	atomValue.updater(() => {
+		callbackFn(defaultGetter, defaultSetter);
+	});
+	return atomValue.proxy.value;
+};
+export const makeAtomEffect = (effectFunction: EFFECT_FUNCTION): Promise<void> =>
+	(async () => await effectFunction(effectGetter(effectFunction), defaultSetter))();

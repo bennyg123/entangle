@@ -1,7 +1,7 @@
 import React from "react";
 import { render, act, fireEvent } from "@testing-library/react";
 import { renderHook, act as act2 } from "@testing-library/react-hooks";
-import { makeAsyncMolecule, makeAtom, makeMolecule, useEntangle } from "../index";
+import { makeAsyncMolecule, makeAtom, makeAtomEffect, makeMolecule, useEntangle } from "../index";
 
 jest.useFakeTimers();
 
@@ -328,5 +328,45 @@ describe("Entangle", () => {
 				pilot: "Amuro Ray",
 			})
 		);
+	});
+
+	test("makeAtomEffect listens to value updates", async () => {
+		const mobileSuitAtom = makeAtom("ZAKU");
+		const testFN = jest.fn();
+
+		makeAtomEffect((get, set) => {
+			testFN(get(mobileSuitAtom) + " FROM ATOM EFFECT");
+		});
+
+		const { result: profileResult } = renderHook(() => useEntangle(mobileSuitAtom));
+
+		act2(() => {
+			profileResult.current[1]("SAZABI");
+		});
+
+		expect(testFN).toBeCalledTimes(2);
+		expect(testFN).toHaveBeenCalledWith("SAZABI FROM ATOM EFFECT");
+		expect(testFN).toHaveBeenCalledWith("ZAKU FROM ATOM EFFECT");
+	});
+
+	test("makeAtomEffect updates value correctly", async () => {
+		const mobileSuitAtom = makeAtom("ZAKU");
+		const pilotAtom = makeAtom("");
+
+		makeAtomEffect((get, set) => {
+			if (get(mobileSuitAtom) === "SAZABI") {
+				set(pilotAtom, "CHAR");
+			}
+		});
+
+		const { result: profileResult } = renderHook(() => useEntangle(mobileSuitAtom));
+
+		expect(pilotAtom.proxy.value).toEqual("");
+
+		act2(() => {
+			profileResult.current[1]("SAZABI");
+		});
+
+		expect(pilotAtom.proxy.value).toEqual("CHAR");
 	});
 });
