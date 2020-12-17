@@ -10,6 +10,7 @@
 		"forceConsistentCasingInFileNames": true,
 		"noFallthroughCasesInSwitch": true,
 		"module": "ES6",
+		"declaration": true,
 		"moduleResolution": "node",
 		"resolveJsonModule": true,
 		"noEmit": true,

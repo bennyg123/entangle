@@ -22,6 +22,13 @@ Global state management tool for react hooks inspired by [RecoilJS](https://gith
   - [makeAsyncMolecule](#makeasyncmolecule)
   - [useEntangle](#useentangle)
   - [makeAtomEffect](#makeatomeffect)
+  - [Advance API](#advance-api)
+    - [`useReadEntangle`](#usereadentangle)
+    - [`useSetEntangle`](#usesetentangle)
+    - [`makeAtomFamily`](#makeatomfamily)
+  - [Develop](#develop)
+  - [Footnotes](#footnotes)
+
   - [Develop](#develop)
   - [Footnotes](#footnotes)
 
@@ -71,7 +78,7 @@ const Component2 = () => {
 }
 ```
 
-In the above example, a global `atomValue` is created with the initial value passed in. **A non-null, non-undefined value must be passed into makeAtom**. Then the components that need to access that value will pass in the `atomValue` to a `useEntangle` hook inside the component. The `useEntangle` hook works the same way as a `useState` hook, the first value is the value, while the second is an updater function. If either of the buttons are clicked and they update the `atomState`, then both components (and only those components and their children) will rerender, staying in sync. Most importantly the parents will not rerender.
+In the above example, a global `atomValue` is created with the initial value passed in. Then the components that need to access that value will pass in the `atomValue` to a `useEntangle` hook inside the component. The `useEntangle` hook works the same way as a `useState` hook, the first value is the value, while the second is an updater function. If either of the buttons are clicked and they update the `atomState`, then both components (and only those components and their children) will rerender, staying in sync. Most importantly the parents will not rerender.
 
 ```tsx
 import { makeAtom, makeMolecule, useEntangle } from "@bennyg_123/entangle";
@@ -115,7 +122,7 @@ const Component = () => {
 }
 ```
 
-Entangle also supports async molecules as well with the `makeAsyncMolecule` method. You can do API calls using atom values here, and they will automatically update and subscribe to those atom changes. One thing to note is a non-null, non-undefined default value must be passed in as a second parameter and this value must match the return value of the async generator function passed in.
+Entangle also supports async molecules as well with the `makeAsyncMolecule` method. You can do API calls using atom values here, and they will automatically update and subscribe to those atom changes. The value of the second parameter must match the return value of the async generator function passed in.
 
 For example the below example wont work since you passed in a string for a default value but the async function returns an object.
 ```tsx
@@ -222,7 +229,7 @@ const Component = () => {
 
 ## makeAsyncMolecule
 
-Same usage as `makeMolecule` except you pass in an async function and a default value as the second argument. ***It is important to note that the second argument must be passed in and not-null/not-undefined.***
+Same usage as `makeMolecule` except you pass in an async function and a default value as the second argument.
 
 ```jsx
 import { makeAtom, makeMolecule, useEntangle } from "@bennyg_123/entangle";
@@ -283,6 +290,91 @@ makeAtomEffect((get, set) => {
 })
 ```
 
+## Advance API
+
+### `useReadEntangle`
+
+Sometimes in our components we don't want to allow for updates to an atom and only want to consume the values, thats where useReadEntangle comes in handy.
+It only returns a read only value and lets the component subscribe to the atom changes.
+
+```tsx
+ 
+const atom1 = makeAtom("Hello");
+ 
+const Component = () => {
+	const value = useReadEntangle(atom1);
+
+	return (
+        <div>{value}</div>
+	)
+}
+```
+
+### `useSetEntangle`
+
+Sometimes a component only needs to set an atom's value and not subscribe to those changes, as a result useSetEntangle will only return a function that'll set an atoms value and
+update other components subscribed but not the current component.
+
+```tsx
+ 
+const atom1 = makeAtom("Hello");
+ 
+const Component = () => {
+    const setValue = useSetEntangle(atom1);
+    // Is not subscribed to ATOM changes
+
+	return (
+    	<button onClick={() => setValue("World")}>Update Atom</button>
+	)
+}
+```
+
+### `makeAtomFamily`
+
+When we need to have a array or set of atoms, makeAtomFamily can help, it is an atom generator that takes either an initial value or function that returns an initial value, and outputs a helper function to generate atoms on the fly. You can pass in values as arguments for initialization, and then use it the exact same as a regular atom. The arguments help act as keys to differentiate an atom from each other, thus if one component updates an atom, then the other components using an atomFamily wont get updated.
+
+```tsx
+const atomFamily = makeAtomFamily("Hello");
+ 
+const Component1 = () => {
+ 	const setValue = useEntangle(atomFamily("A"));
+ 
+  	// Component1 will not update Component2
+  	return (
+  		<button onClick={() => setValue("World")}>Update Atom</button>
+ 	)
+}
+ 
+const Component2 = () => {
+ 	const setValue = useEntangle(atomFamily("B"));
+ 
+  	// Component2 will not update Component1
+  	return (
+  		<button onClick={() => setValue("World")}>Update Atom</button>
+  	)
+}
+```
+
+```tsx
+const atomFamily = makeAtomFamily((arg1, arg2) => arg1 + arg2);
+
+const Component = () => {
+    const setValue = useEntangle(atomFamily(1, 2));
+ 
+  	return (
+  		// All subsequent sets to the atom should be set like a regular atom and not via the function
+  		<button onClick={() => setValue(32)}>Update Atom</button>
+  	)
+}
+ 
+const Component2 = () => {
+ 	const setValue = useEntangle(atomFamily(3, 4));
+ 
+ 	return (
+  		<button onClick={() => setValue(24)}>Update Atom</button>
+  	)
+}
+```
 
 ## Develop
 

@@ -1,7 +1,16 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { render, act, fireEvent } from "@testing-library/react";
 import { renderHook, act as act2 } from "@testing-library/react-hooks";
-import { makeAsyncMolecule, makeAtom, makeAtomEffect, makeMolecule, useEntangle } from "../index";
+import {
+	makeAsyncMolecule,
+	makeAtom,
+	makeAtomEffect,
+	makeAtomFamily,
+	makeMolecule,
+	useEntangle,
+	useReadEntangle,
+	useSetEntangle,
+} from "../index";
 
 jest.useFakeTimers();
 
@@ -64,11 +73,6 @@ describe("Entangle", () => {
 			updater: expect.any(Function),
 			molecule: false,
 		});
-	});
-
-	test("makeAtom throws error when passed in undefined and null", () => {
-		expect(() => makeAtom(null as unknown)).toThrow("Initial value for atom cannot be null or undefined");
-		expect(() => makeAtom(undefined as unknown)).toThrow("Initial value for atom cannot be null or undefined");
 	});
 
 	test("makeAtom's updater is called when the value is updated", () => {
@@ -368,5 +372,250 @@ describe("Entangle", () => {
 		});
 
 		expect(pilotAtom.proxy.value).toEqual("CHAR");
+	});
+
+	test("useReadEntangle works as expected", async () => {
+		const mobileSuitAtom = makeAtom("ZAKU");
+
+		const Component1 = () => {
+			const ms = useReadEntangle(mobileSuitAtom);
+
+			return <div className="MS">{ms}</div>;
+		};
+
+		const Component2 = () => {
+			const [ms, setMS] = useEntangle(mobileSuitAtom);
+
+			return (
+				<button className="UPDATE_ATOM" onClick={() => setMS("SAZABI")}>
+					Click Me
+				</button>
+			);
+		};
+
+		const { container: container1 } = render(<Component1 />);
+		const { container: container2 } = render(<Component2 />);
+
+		expect(container1.getElementsByClassName("MS")[0].innerHTML).toEqual("ZAKU");
+
+		await act(async () => {
+			fireEvent(
+				container2.getElementsByClassName("UPDATE_ATOM")[0],
+				new MouseEvent("click", {
+					bubbles: true,
+					cancelable: true,
+				})
+			);
+		});
+
+		expect(container1.getElementsByClassName("MS")[0].innerHTML).toEqual("SAZABI");
+	});
+
+	test("useSetEntangle works as expected and does not re render component", async () => {
+		const mobileSuitAtom = makeAtom("ZAKU");
+		const mockReRender = jest.fn();
+
+		const Component1 = () => {
+			const ms = useReadEntangle(mobileSuitAtom);
+
+			return <div className="MS">{ms}</div>;
+		};
+
+		const Component2 = () => {
+			const setMS = useSetEntangle(mobileSuitAtom);
+
+			useEffect(() => {
+				mockReRender();
+			});
+
+			return (
+				<button className="UPDATE_ATOM" onClick={() => setMS("SAZABI")}>
+					Click Me
+				</button>
+			);
+		};
+
+		const { container: container1 } = render(<Component1 />);
+		const { container: container2 } = render(<Component2 />);
+
+		expect(mockReRender).toHaveBeenCalledTimes(1);
+
+		expect(container1.getElementsByClassName("MS")[0].innerHTML).toEqual("ZAKU");
+
+		await act(async () => {
+			fireEvent(
+				container2.getElementsByClassName("UPDATE_ATOM")[0],
+				new MouseEvent("click", {
+					bubbles: true,
+					cancelable: true,
+				})
+			);
+		});
+
+		expect(mockReRender).toHaveBeenCalledTimes(1);
+
+		expect(container1.getElementsByClassName("MS")[0].innerHTML).toEqual("SAZABI");
+	});
+
+	test("makeAtomFamily works with initial value", async () => {
+		const mobileSuitAtom = makeAtomFamily("ZAKU");
+		const mockReRender1 = jest.fn();
+		const mockReRender2 = jest.fn();
+
+		const Component1 = () => {
+			const [ms, setMS] = useEntangle(mobileSuitAtom("1"));
+
+			useEffect(() => {
+				mockReRender1();
+			});
+
+			return (
+				<>
+					<div className="MS">{ms}</div>{" "}
+					<button className="UPDATE_ATOM" onClick={() => setMS("SAZABI")}>
+						Click Me
+					</button>
+				</>
+			);
+		};
+
+		const Component2 = () => {
+			const [ms, setMS] = useEntangle(mobileSuitAtom("2"));
+
+			useEffect(() => {
+				mockReRender2();
+			});
+
+			return (
+				<>
+					<div className="MS">{ms}</div>{" "}
+					<button className="UPDATE_ATOM" onClick={() => setMS("ZEONG")}>
+						Click Me
+					</button>
+				</>
+			);
+		};
+
+		const { container: container1 } = render(<Component1 />);
+		const { container: container2 } = render(<Component2 />);
+
+		expect(container1.getElementsByClassName("MS")[0].innerHTML).toEqual("ZAKU");
+		expect(container2.getElementsByClassName("MS")[0].innerHTML).toEqual("ZAKU");
+
+		expect(mockReRender1).toHaveBeenCalledTimes(1);
+		expect(mockReRender2).toHaveBeenCalledTimes(1);
+
+		await act(async () => {
+			fireEvent(
+				container1.getElementsByClassName("UPDATE_ATOM")[0],
+				new MouseEvent("click", {
+					bubbles: true,
+					cancelable: true,
+				})
+			);
+		});
+
+		expect(mockReRender1).toHaveBeenCalledTimes(2);
+		expect(mockReRender2).toHaveBeenCalledTimes(1);
+
+		expect(container1.getElementsByClassName("MS")[0].innerHTML).toEqual("SAZABI");
+		expect(container2.getElementsByClassName("MS")[0].innerHTML).toEqual("ZAKU");
+
+		await act(async () => {
+			fireEvent(
+				container2.getElementsByClassName("UPDATE_ATOM")[0],
+				new MouseEvent("click", {
+					bubbles: true,
+					cancelable: true,
+				})
+			);
+		});
+
+		expect(mockReRender1).toHaveBeenCalledTimes(2);
+		expect(mockReRender2).toHaveBeenCalledTimes(2);
+
+		expect(container1.getElementsByClassName("MS")[0].innerHTML).toEqual("SAZABI");
+		expect(container2.getElementsByClassName("MS")[0].innerHTML).toEqual("ZEONG");
+	});
+
+	test("makeAtomFamily works with initial value which is a function", async () => {
+		const mobileSuitAtom = makeAtomFamily((ms: string) => `MS: ${ms}`);
+		const mockReRender1 = jest.fn();
+		const mockReRender2 = jest.fn();
+
+		const Component1 = () => {
+			const [ms, setMS] = useEntangle(mobileSuitAtom("ZAKU"));
+
+			useEffect(() => {
+				mockReRender1();
+			});
+
+			return (
+				<>
+					<div className="MS">{ms}</div>{" "}
+					<button className="UPDATE_ATOM" onClick={() => setMS("SAZABI")}>
+						Click Me
+					</button>
+				</>
+			);
+		};
+
+		const Component2 = () => {
+			const [ms, setMS] = useEntangle(mobileSuitAtom("Hyaku Shiki"));
+
+			useEffect(() => {
+				mockReRender2();
+			});
+
+			return (
+				<>
+					<div className="MS">{ms}</div>{" "}
+					<button className="UPDATE_ATOM" onClick={() => setMS("ZEONG")}>
+						Click Me
+					</button>
+				</>
+			);
+		};
+
+		const { container: container1 } = render(<Component1 />);
+		const { container: container2 } = render(<Component2 />);
+
+		expect(container1.getElementsByClassName("MS")[0].innerHTML).toEqual("MS: ZAKU");
+		expect(container2.getElementsByClassName("MS")[0].innerHTML).toEqual("MS: Hyaku Shiki");
+
+		expect(mockReRender1).toHaveBeenCalledTimes(1);
+		expect(mockReRender2).toHaveBeenCalledTimes(1);
+
+		await act(async () => {
+			fireEvent(
+				container1.getElementsByClassName("UPDATE_ATOM")[0],
+				new MouseEvent("click", {
+					bubbles: true,
+					cancelable: true,
+				})
+			);
+		});
+
+		expect(mockReRender1).toHaveBeenCalledTimes(2);
+		expect(mockReRender2).toHaveBeenCalledTimes(1);
+
+		expect(container1.getElementsByClassName("MS")[0].innerHTML).toEqual("SAZABI");
+		expect(container2.getElementsByClassName("MS")[0].innerHTML).toEqual("MS: Hyaku Shiki");
+
+		await act(async () => {
+			fireEvent(
+				container2.getElementsByClassName("UPDATE_ATOM")[0],
+				new MouseEvent("click", {
+					bubbles: true,
+					cancelable: true,
+				})
+			);
+		});
+
+		expect(mockReRender1).toHaveBeenCalledTimes(2);
+		expect(mockReRender2).toHaveBeenCalledTimes(2);
+
+		expect(container1.getElementsByClassName("MS")[0].innerHTML).toEqual("SAZABI");
+		expect(container2.getElementsByClassName("MS")[0].innerHTML).toEqual("ZEONG");
 	});
 });
