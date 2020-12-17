@@ -1,15 +1,15 @@
 import rollupTypescript from "rollup-plugin-typescript2";
 import typescript from "typescript";
-import { terser } from "rollup-plugin-terser";
 import copy from "rollup-plugin-copy";
 import packageJSON from "./package.json";
+import compiler from "@ampproject/rollup-plugin-closure-compiler";
 
 export default {
 	input: "src/index.ts",
 	output: [
 		{
 			file: `${packageJSON.module}`,
-			format: "esm",
+			format: "es",
 			exports: "named",
 		},
 		{
@@ -32,7 +32,7 @@ export default {
 		rollupTypescript({
 			typescript: typescript,
 		}), // Converts the TSX files to JS
-		terser({ mangle: false }), // minifies the js bundle
+		compiler(), // minifies the js bundle
 		copy({
 			targets: [{ src: "src/index.d.ts", dest: "dist" }],
 		}),
