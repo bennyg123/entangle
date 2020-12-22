@@ -1,8 +1,8 @@
 import rollupTypescript from "rollup-plugin-typescript2";
 import typescript from "typescript";
-import copy from "rollup-plugin-copy";
 import packageJSON from "./package.json";
 import compiler from "@ampproject/rollup-plugin-closure-compiler";
+import summary from "rollup-plugin-summary";
 
 export default {
 	input: "src/index.ts",
@@ -33,8 +33,6 @@ export default {
 			typescript: typescript,
 		}), // Converts the TSX files to JS
 		compiler(), // minifies the js bundle
-		copy({
-			targets: [{ src: "src/index.d.ts", dest: "dist" }],
-		}),
+		summary(),
 	],
 };
