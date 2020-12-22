@@ -87,15 +87,11 @@ describe("useSetEntangle", () => {
 		const msAsyncMoleculeFromFamily = makeAsyncMoleculeFamily(asyncMoleculeFN, "")("");
 
 		[msMolecule, msAsyncMolecule, msMoleculeFromFamily, msAsyncMoleculeFromFamily].map((atom) => {
-			expect(() => renderHook(() => useSetEntangle(atom))).toThrow(
-				new Error("Read Only ATOMS cannot be used with useSetEntangle")
-			);
+			expect(() => useSetEntangle(atom)).toThrow(new Error("Read Only ATOMS cannot be used with useSetEntangle"));
 		});
 
 		[msAtom, msAtomFromFamily].map((atom) => {
-			expect(() => renderHook(() => useSetEntangle(atom))).not.toThrow(
-				new Error("Read Only ATOMS cannot be used with useSetEntangle")
-			);
+			expect(() => useSetEntangle(atom)).not.toThrow(new Error("Read Only ATOMS cannot be used with useSetEntangle"));
 		});
 	});
 });
