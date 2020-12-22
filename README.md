@@ -7,7 +7,7 @@
     <img src="https://badgen.net/npm/v/@bennyg_123/entangle" />
 </a>
 <a href="https://badgen.net/bundlephobia/minzip/@bennyg_123/entangle">
-    <img src="https://badgen.net/bundlephobia/minzip/@bennyg_123/entangle" />
+    <img src="https://badgen.net/bundlephobia/minzip/@bennyg_123/entangle@latest" />
 </a>
 <a href="https://badgen.net/npm/dt/@bennyg_123/entangle">
     <img src="https://badgen.net/npm/dt/@bennyg_123/entangle" />
