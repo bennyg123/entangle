@@ -15,7 +15,8 @@
         "lint": "eslint src --ext .ts --fix",
         "test": "jest",
         "build": "rollup -c",
-        "example": "parcel ./examples/renderProfile/index.html"
+        "example": "parcel ./examples/renderProfile/index.html",
+        "example:todo": "parcel ./examples/todoList/index.html"
     },
     "peerDependencies": {
         "react": "^16.8.0"
