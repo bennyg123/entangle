@@ -1,7 +1,12 @@
 import { ATOM } from "../types";
 import { defaultGetter } from "../utils/utils";
 import { makeAtom } from "./makeAtom";
-
+/**
+ * A composite function that returns a value from other atoms, it also subscribes to the atom values it reads from
+ *
+ * @param  {(get: typeof defaultGetter) => T} generateMolecule a non-async function that has a getter function passed in and returns a value
+ * @returns ATOM
+ */
 export const makeMolecule = <T>(
 	generateMolecule: (get: typeof defaultGetter) => T extends Promise<unknown> ? never : T
 ): ATOM<T> => {
@@ -26,7 +31,13 @@ export const makeMolecule = <T>(
 
 	return atom;
 };
-
+/**
+ * Am async composite function that returns a value from other atoms, it also subscribes to the atom values it reads from.
+ *
+ * @param  {(get: typeof defaultGetter)=> Promise<T>} asyncGenerateMolecule async function that has a getter passed in to produce a composite value from other atoms
+ * @param  {T} defaultValue defaultValue for the atom before it gets updated
+ * @returns ATOM
+ */
 export const makeAsyncMolecule = <T>(
 	asyncGenerateMolecule: (get: typeof defaultGetter) => Promise<T>,
 	defaultValue: T
