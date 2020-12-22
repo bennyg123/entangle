@@ -1,8 +1,19 @@
 # Entangle
 
-[![bennyg123](https://circleci.com/gh/bennyg123/entangle.svg?style=svg&circle-token=d913026464207a76d0fecb39f5f57452b794f0c2)](https://circleci.com/gh/bennyg123/entangle) <img src="https://badgen.net/bundlephobia/minzip/@bennyg_123/entangle" />
+<a href="https://badgen.net/github/status/bennyg123/entangle/main/circleci">
+    <img src="https://badgen.net/github/status/bennyg123/entangle/main/circleci">
+</a>
+<a href="https://badgen.net/npm/v/@bennyg_123/entangle">
+    <img src="https://badgen.net/npm/v/@bennyg_123/entangle" />
+</a>
+<a href="https://badgen.net/bundlephobia/minzip/@bennyg_123/entangle">
+    <img src="https://badgen.net/bundlephobia/minzip/@bennyg_123/entangle" />
+</a>
+<a href="https://badgen.net/npm/dt/@bennyg_123/entangle">
+    <img src="https://badgen.net/npm/dt/@bennyg_123/entangle" />
+</a>
 
-Global state management tool for react hooks inspired by [RecoilJS](https://github.com/facebookexperimental/Recoil) using proxies.
+Global state management tool for react hooks inspired by [RecoilJS](https://github.com/facebookexperimental/Recoil) and [Jotai](https://github.com/pmndrs/jotai) using proxies.
 
 ## Features
 
