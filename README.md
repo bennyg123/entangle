@@ -1,16 +1,16 @@
 # Entangle
 
-<a href="https://badgen.net/github/status/bennyg123/entangle/main/circleci">
-    <img src="https://badgen.net/github/status/bennyg123/entangle/main/circleci">
+<a href="https://app.circleci.com/pipelines/github/bennyg123/entangle">
+    <img src="https://badgen.net/github/status/bennyg123/entangle/main/circleci?service=github">
 </a>
-<a href="https://badgen.net/npm/v/@bennyg_123/entangle">
-    <img src="https://badgen.net/npm/v/@bennyg_123/entangle" />
+<a href="https://www.npmjs.com/package/@bennyg_123/entangle">
+    <img src="https://badgen.net/npm/v/@bennyg_123/entangle?service=github " />
 </a>
-<a href="https://badgen.net/bundlephobia/minzip/@bennyg_123/entangle">
-    <img src="https://badgen.net/bundlephobia/minzip/@bennyg_123/entangle@latest" />
+<a href="https://bundlephobia.com/result?p=@bennyg_123/entangle@latest">
+    <img src="https://badgen.net/bundlephobia/minzip/@bennyg_123/entangle@latest?service=github" />
 </a>
-<a href="https://badgen.net/npm/dt/@bennyg_123/entangle">
-    <img src="https://badgen.net/npm/dt/@bennyg_123/entangle" />
+<a href="https://www.npmjs.com/package/@bennyg_123/entangle">
+    <img src="https://badgen.net/npm/dt/@bennyg_123/entangle?service=github" />
 </a>
 
 Global state management tool for react hooks inspired by [RecoilJS](https://github.com/facebookexperimental/Recoil) and [Jotai](https://github.com/pmndrs/jotai) using proxies.
