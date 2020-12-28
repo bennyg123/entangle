@@ -4,7 +4,7 @@ import { renderHook, act as renderHookAct } from "@testing-library/react-hooks";
 import { makeAtom } from "../../core/makeAtom";
 import { makeAsyncMolecule, makeMolecule } from "../../core/makeMolecule";
 import { makeAsyncMoleculeFamily, makeAtomFamily, makeMoleculeFamily } from "../../core/makeFamily";
-import { useEntangle } from "../useEntangle";
+import { useEntangle, useMultiEntangle } from "../useEntangle";
 
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -384,5 +384,30 @@ describe("useEntangle", () => {
 				pilot: "RED COMET",
 			})
 		);
+	});
+});
+
+describe("useMultiEntangle", () => {
+	test("useMultiEntangle is able to read multiple atoms and set multiple atoms and stay subscribed", () => {
+		const msAtom = makeAtom("ZAKU");
+		const pilotAtom = makeAtom("Char");
+		const allianceMolecule = makeMolecule((get) => (get(msAtom) === "ZAKU" ? "ZEON" : "ESFS"));
+
+		const { result } = renderHook(() => useMultiEntangle(msAtom, pilotAtom, allianceMolecule));
+
+		expect(result.current[0]).toStrictEqual(["ZAKU", "Char", "ZEON"]);
+		expect(result.current[1]).toStrictEqual([expect.any(Function), expect.any(Function), expect.any(Function)]);
+
+		renderHookAct(() => {
+			result.current[1][0]("Hyakku Shiki");
+		});
+
+		expect(result.current[0]).toStrictEqual(["Hyakku Shiki", "Char", "ESFS"]);
+
+		renderHookAct(() => {
+			result.current[1][1]("Quattro Bajeena");
+		});
+
+		expect(result.current[0]).toStrictEqual(["Hyakku Shiki", "Quattro Bajeena", "ESFS"]);
 	});
 });

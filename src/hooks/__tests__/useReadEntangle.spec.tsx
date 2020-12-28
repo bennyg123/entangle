@@ -1,9 +1,10 @@
 import React from "react";
-import { renderHook } from "@testing-library/react-hooks";
+import { renderHook, act as renderAct } from "@testing-library/react-hooks";
 import { makeAtom } from "../../core/makeAtom";
 import { useEntangle } from "../useEntangle";
-import { useReadEntangle } from "../useReadEntangle";
+import { useMultiReadEntangle, useReadEntangle } from "../useReadEntangle";
 import { act, fireEvent, render } from "@testing-library/react";
+import { makeMolecule } from "../../core/makeMolecule";
 
 describe("useReadEntangle", () => {
 	test("useReadEntangle returns an atom value", () => {
@@ -48,5 +49,23 @@ describe("useReadEntangle", () => {
 		});
 
 		expect(container.getElementsByClassName("MS_READ_ONLY")[0].innerHTML).toEqual("SAZABI");
+	});
+});
+
+describe("useMultiReadEntangle", () => {
+	test("useMultiReadEntangle returns multiple atom values and stay subscribed", () => {
+		const msAtom = makeAtom("ZAKU");
+		const pilotAtom = makeAtom("Char");
+		const allianceMolecule = makeMolecule((get) => (get(msAtom) === "ZAKU" ? "ZEON" : "ESFS"));
+
+		const { result } = renderHook(() => useMultiReadEntangle(msAtom, pilotAtom, allianceMolecule));
+
+		expect(result.current).toStrictEqual(["ZAKU", "Char", "ZEON"]);
+
+		renderAct(() => {
+			msAtom.proxy.value = "Hyakku Shiki";
+		});
+
+		expect(result.current).toStrictEqual(["Hyakku Shiki", "Char", "ESFS"]);
 	});
 });

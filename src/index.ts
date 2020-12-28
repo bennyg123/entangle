@@ -1,9 +1,9 @@
 import { makeAtom, makeAtomEffect, makeAtomEffectSnapshot } from "./core/makeAtom";
 import { makeMolecule, makeAsyncMolecule } from "./core/makeMolecule";
 import { makeAtomFamily, makeMoleculeFamily, makeAsyncMoleculeFamily } from "./core/makeFamily";
-import { useEntangle } from "./hooks/useEntangle";
-import { useReadEntangle } from "./hooks/useReadEntangle";
-import { useSetEntangle } from "./hooks/useSetEntangle";
+import { useEntangle, useMultiEntangle } from "./hooks/useEntangle";
+import { useReadEntangle, useMultiReadEntangle } from "./hooks/useReadEntangle";
+import { useSetEntangle, useMultiSetEntangle } from "./hooks/useSetEntangle";
 
 export {
 	// Core
@@ -21,4 +21,8 @@ export {
 	useEntangle,
 	useSetEntangle,
 	useReadEntangle,
+	// Multi Hooks
+	useMultiEntangle,
+	useMultiSetEntangle,
+	useMultiReadEntangle,
 };

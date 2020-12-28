@@ -31,8 +31,11 @@ Global state management tool for react hooks inspired by [RecoilJS](https://gith
     - [`makeAtomEffect`](#make-atom-effect)
   - [Hooks](#hooks)
     - [`useEntangle`](#use-entangle)
+    - [`useMultiEntangle`](#use-multi-entangle)
     - [`useReadEntangle`](#use-read-entangle)
+    - [`useMultiReadEntangle`](#use-multi-read-entangle)
     - [`useSetEntangle`](#use-set-entangle)
+    - [`useMultiSetEntangle`](#use-multi-set-entangle)
   - [Advance API](#advance-api)
     - [`makeAtomEffectSnapshot`](#make-atom-effect-snapshot)
     - [`makeAtomFamily`](#make-atom-family)
@@ -306,6 +309,30 @@ const Component = () => {
 }
 ```
 
+<h3 id="use-multi-entangle"><code>useMultiEntangle</code></h3>
+
+For reading and setting multiple atoms, you can use `useMultiEntangle` with multiple atoms. You pass in a list of atoms as arguments and it'll return getters and setters in that order.
+
+***Unfortunately due to my own limited knowledge with advanced ts, I was unable to make typing work with the `useMulti` hooks. I am actively looking for a way for TS to infer the types of atoms passed in and evaluate typings, but any help would be greatly appreciated.***
+
+```tsx
+
+import { makeAtom, useMultiEntangle } from "@bennyg_123/entangle";
+
+const atom1 = makeAtom("Hello");
+const atom2 = makeAtom("World");
+const atom3 = makeAtom1("!!!");
+ 
+const Component = () => {
+    const [
+        [atom1Value, atom2Value, atom3Value],
+        [setAtom1, setAtom2, setAtom3]
+    ] = useMultiEntangle(atom1, atom2, atom3);
+
+    ...
+}
+```
+
 <h3 id="use-read-entangle"><code>useReadEntangle</code></h3>
 
 
@@ -318,11 +345,30 @@ import { makeAtom, useReadEntangle } from "@bennyg_123/entangle";
 const atom1 = makeAtom("Hello");
  
 const Component = () => {
-	const value = useReadEntangle(atom1);
+    const value = useReadEntangle(atom1);
 
     return (
         <div>{value}</div>
     )
+}
+```
+
+<h3 id="use-multi-read-entangle"><code>useMultiReadEntangle</code></h3>
+
+When one needs to read from multiple atoms and stay subscribed use `useMultiReadEntangle`. Pass in multiple atoms and get the values back in an array.
+
+```tsx
+
+import { makeAtom, useMultiReadEntangle } from "@bennyg_123/entangle";
+
+const atom1 = makeAtom("Hello");
+const atom2 = makeAtom("World");
+const atom3 = makeAtom1("!!!");
+ 
+const Component = () => {
+    const [atom1Value, atom2Value, atom3Value] = useMultiReadEntangle(atom1, atom2, atom3);
+
+    ...
 }
 ```
 
@@ -342,6 +388,25 @@ const Component = () => {
     return (
         <button onClick={() => setValue("World")}>Update Atom</button>
     )
+}
+```
+
+<h3 id="use-multi-set-entangle"><code>useMultiSetEntangle</code></h3>
+
+When one needs to set multiple atoms use `useMultiSetEntangle`. Pass in multiple atoms and get the setters back in an array.
+
+```tsx
+
+import { makeAtom, useMultiSetEntangle } from "@bennyg_123/entangle";
+
+const atom1 = makeAtom("Hello");
+const atom2 = makeAtom("World");
+const atom3 = makeAtom1("!!!");
+ 
+const Component = () => {
+    const [setAtom1, setAtom2, setAtom3] = useMultiSetEntangle(atom1, atom2, atom3);
+
+    ...
 }
 ```
 

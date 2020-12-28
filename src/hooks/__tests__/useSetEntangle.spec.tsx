@@ -3,7 +3,7 @@ import { renderHook } from "@testing-library/react-hooks";
 import { act, fireEvent, render } from "@testing-library/react";
 import { makeAtom } from "../../core/makeAtom";
 import { useEntangle } from "../useEntangle";
-import { useSetEntangle } from "../useSetEntangle";
+import { useMultiSetEntangle, useSetEntangle } from "../useSetEntangle";
 import { makeAsyncMolecule, makeMolecule } from "../../core/makeMolecule";
 import { makeAsyncMoleculeFamily, makeMoleculeFamily, makeAtomFamily } from "../../core/makeFamily";
 import { defaultGetter } from "../../utils/utils";
@@ -93,5 +93,63 @@ describe("useSetEntangle", () => {
 		[msAtom, msAtomFromFamily].map((atom) => {
 			expect(() => useSetEntangle(atom)).not.toThrow(new Error("Read Only ATOMS cannot be used with useSetEntangle"));
 		});
+	});
+});
+
+describe("useMultiSetEntangle", () => {
+	test("useMultiSetEntangle returns multiple atom setters", () => {
+		const msAtom = makeAtom("ZAKU");
+		const pilotAtom = makeAtom("Char");
+
+		const { result } = renderHook(() => useMultiSetEntangle(msAtom, pilotAtom));
+
+		expect(result.current).toStrictEqual([expect.any(Function), expect.any(Function)]);
+	});
+
+	test("useMultiSetEntangle throws an error when used with a molecule", () => {
+		const msAtom = makeAtom("ZAKU");
+		const pilotAtom = makeAtom("Char");
+		const allianceMolecule = makeMolecule((get) => (get(msAtom) === "ZAKU" ? "ZEON" : "ESFS"));
+
+		expect(() => useMultiSetEntangle(msAtom, pilotAtom, allianceMolecule)).toThrow(
+			new Error("Read Only ATOMS cannot be used with useSetEntangle")
+		);
+	});
+
+	test("useMultiSetEntangle does not stay subscribed to atoms", () => {
+		const msAtom = makeAtom("ZAKU");
+		const pilotAtom = makeAtom("Char");
+		const reRendered = jest.fn();
+
+		const Component = () => {
+			const [setMS, setPilot] = useMultiSetEntangle(msAtom, pilotAtom);
+
+			useEffect(() => {
+				reRendered();
+			});
+
+			return (
+				<button
+					className="UPDATE_ATOMS"
+					onClick={() => {
+						setMS("Hyakku Shiki");
+						setPilot("Quattro Bajeena");
+					}}
+				></button>
+			);
+		};
+
+		const { container } = render(<Component />);
+
+		expect(reRendered).toHaveBeenCalledTimes(1);
+
+		act(() => {
+			fireEvent.click(container.getElementsByClassName("UPDATE_ATOMS")[0]);
+		});
+
+		expect(reRendered).toHaveBeenCalledTimes(1);
+
+		expect(msAtom.proxy.value).toEqual("Hyakku Shiki");
+		expect(pilotAtom.proxy.value).toEqual("Quattro Bajeena");
 	});
 });
