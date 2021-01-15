@@ -4,6 +4,14 @@ import { makeAtomFamily, makeMoleculeFamily, makeAsyncMoleculeFamily } from "./c
 import { useEntangle, useMultiEntangle } from "./hooks/useEntangle";
 import { useReadEntangle, useMultiReadEntangle } from "./hooks/useReadEntangle";
 import { useSetEntangle, useMultiSetEntangle } from "./hooks/useSetEntangle";
+import {
+	ATOM,
+	ATOM_CALLBACK,
+	ATOM_EFFECT_FN,
+	ATOM_EFFECT_SNAPSHOT_FN,
+	ATOM_MOLECULE_FAMILY_FN,
+	ASYNC_ATOM_MOLECULE_FAMILY_FN,
+} from "./types";
 
 export {
 	// Core
@@ -25,4 +33,11 @@ export {
 	useMultiEntangle,
 	useMultiSetEntangle,
 	useMultiReadEntangle,
+	// Types
+	ATOM,
+	ATOM_CALLBACK,
+	ATOM_EFFECT_FN,
+	ATOM_EFFECT_SNAPSHOT_FN,
+	ATOM_MOLECULE_FAMILY_FN,
+	ASYNC_ATOM_MOLECULE_FAMILY_FN,
 };
