@@ -10,7 +10,7 @@ export type ATOM<T> = {
 	readOnly: boolean;
 };
 
-export type ATOM_EFFECT_SNAPSHOT_FN<T, K extends unknown[]> = (
+export type ATOM_EFFECT_SNAPSHOT_FN<K extends unknown[]> = (
 	get: typeof defaultGetter,
 	set: typeof defaultSetter,
 	...args: K

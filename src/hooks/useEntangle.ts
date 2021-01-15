@@ -1,5 +1,5 @@
 import { ATOM } from "../types";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 /**
  * Hook to subscribe a component to an atom and its changes
