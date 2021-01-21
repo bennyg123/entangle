@@ -47,6 +47,5 @@ export const makeAtomEffect = (atomEffectFn: ATOM_EFFECT_FN): void => {
  * @param  {ATOM_EFFECT_FN} atomEffectFn function with a getter or setter to run updates to atoms outside of a hook
  * @returns {(...args: K) => void} function to manually call to run the side effect function passed
  */
-export const makeAtomEffectSnapshot = <T, K extends unknown[]>(atomSnapshotFn: ATOM_EFFECT_SNAPSHOT_FN<T, K>) => (
-	...args: K
-): void => atomSnapshotFn(defaultGetter, defaultSetter, ...args);
+export const makeAtomEffectSnapshot = <K extends unknown[]>(atomSnapshotFn: ATOM_EFFECT_SNAPSHOT_FN<K>) => (...args: K): void =>
+	atomSnapshotFn(defaultGetter, defaultSetter, ...args);

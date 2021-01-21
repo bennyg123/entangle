@@ -125,7 +125,7 @@ describe("makeAtomEffectSnapshot", () => {
 	test("makeAtomEffectSnapshot handles arguments correctly", () => {
 		const newMSAtomValue = makeAtom("MS: ");
 
-		const atomEffectSnapshot = makeAtomEffectSnapshot<string, string[]>((get, set, ms: string) => {
+		const atomEffectSnapshot = makeAtomEffectSnapshot<string[]>((get, set, ms: string) => {
 			set(newMSAtomValue, get(newMSAtomValue) + ms);
 		});
 
@@ -138,7 +138,7 @@ describe("makeAtomEffectSnapshot", () => {
 		const mockCallbackFN = jest.fn();
 		const newMSAtomValue = makeAtom("MS: ");
 
-		const atomEffectSnapshot = makeAtomEffectSnapshot<string, string[]>((get, set, ms: string) => {
+		const atomEffectSnapshot = makeAtomEffectSnapshot<string[]>((get, set, ms: string) => {
 			mockCallbackFN();
 			set(newMSAtomValue, get(newMSAtomValue) + ms);
 		});
