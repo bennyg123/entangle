@@ -6,7 +6,7 @@ export type ATOM_EFFECT_FN = (get: <T>(atomValue: ATOM<T>) => T, set: <T>(atomVa
 
 export type ATOM<T> = {
 	proxy: { value: T };
-	setCallback: (callbackFN: (newValue: T) => void) => void;
+	setCallback: (callbackFN: (newValue: T) => void) => () => void;
 	readOnly: boolean;
 };
 

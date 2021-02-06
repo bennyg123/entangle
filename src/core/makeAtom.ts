@@ -22,7 +22,10 @@ export const makeAtom = <T>(value: T, readOnly = false): ATOM<T> => {
 				},
 			}
 		),
-		setCallback: (cb) => callbacks.push(cb),
+		setCallback: (cb) => {
+			callbacks.push(cb);
+			return () => callbacks.splice(callbacks.indexOf(cb), 1);
+		},
 		readOnly,
 	};
 };

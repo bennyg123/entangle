@@ -19,7 +19,7 @@ Global state management tool for react hooks inspired by [RecoilJS](https://gith
 
 - No need for context
 - Zero dependencies
-- Super lightweight: [< 1kb gzipped](https://bundlephobia.com/result?p=@bennyg_123/entangle)
+- Super lightweight: [~ 1kb gzipped](https://bundlephobia.com/result?p=@bennyg_123/entangle)
 
 ## Table of Contents
   - [Intro](#intro)

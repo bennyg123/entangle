@@ -385,6 +385,20 @@ describe("useEntangle", () => {
 			})
 		);
 	});
+
+	test("useEntangle cleans up callbacks correctly", () => {
+		const atom = makeAtom("Hello");
+
+		const Component = () => {
+			useEntangle(atom);
+
+			return <></>;
+		};
+
+		const { unmount } = render(<Component />);
+
+		expect(atom.setCallback(() => void 0)).toEqual(expect.any(Function));
+	});
 });
 
 describe("useMultiEntangle", () => {

@@ -18,7 +18,9 @@ export const useEntangle = <T>(atomValue: ATOM<T>): [value: T, setValue: (newVal
 	);
 
 	useEffect(() => {
-		atomValue.setCallback(setEntangleState);
+		const cleanup = atomValue.setCallback(setEntangleState);
+
+		return () => cleanup();
 	}, []);
 
 	return [entangleState, setValue];

@@ -29,6 +29,34 @@ describe("makeAtom", () => {
 
 		expect(callbackFN).toHaveBeenCalledWith("SAZABI");
 	});
+
+	test("makeAtom cleanup callbacks correctly", () => {
+		const callbackFN = jest.fn();
+		const callbackFN2 = jest.fn();
+		const msAtomValue = makeAtom("ZAKU");
+
+		expect(msAtomValue.proxy.value).toEqual("ZAKU");
+
+		msAtomValue.setCallback(callbackFN);
+		const cleanup = msAtomValue.setCallback(callbackFN2);
+
+		msAtomValue.proxy.value = "SAZABI";
+		expect(msAtomValue.proxy.value).toEqual("SAZABI");
+
+		expect(callbackFN).toHaveBeenCalledWith("SAZABI");
+		expect(callbackFN2).toHaveBeenCalledWith("SAZABI");
+
+		cleanup();
+
+		msAtomValue.proxy.value = "ZEONG";
+		expect(msAtomValue.proxy.value).toEqual("ZEONG");
+
+		expect(callbackFN).toHaveBeenCalledWith("ZEONG");
+		expect(callbackFN2).not.toHaveBeenCalledWith("ZEONG");
+
+		expect(callbackFN).toHaveBeenCalledTimes(2);
+		expect(callbackFN2).toHaveBeenCalledTimes(1);
+	});
 });
 
 describe("makeAtomEffect", () => {
