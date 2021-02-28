@@ -8,9 +8,11 @@ import { makeAtom } from "./makeAtom";
  * @returns ATOM
  */
 export const makeMolecule = <T>(
-	generateMolecule: (get: typeof defaultGetter) => T extends Promise<unknown> ? never : T
+	generateMolecule: (get: typeof defaultGetter) => T extends Promise<unknown> ? never : T,
+	debounce: number | undefined = undefined
 ): ATOM<T> => {
 	let proxy: { value?: T } = {};
+	let debounceID = 0;
 
 	// Since every molecule is composed of different atoms we need to add callbacks to each of those atoms
 	// So that when any of them update, the molecule is automatically updated as well.
@@ -20,10 +22,19 @@ export const makeMolecule = <T>(
 
 			// If we dont want the molecule to subscribe to a certain atoms changes we can pass in false to subscribed
 			if (subscribed) {
-				atomValue.setCallback(() => {
-					// On the second and subsequent calls whenever one of the individual atoms get updated, the generateMolecule is called again to regenerate the molecule
-					proxy.value = generateMolecule(defaultGetter);
-				});
+				atomValue.setCallback(
+					debounce && debounce > 0
+						? () => {
+								window.clearTimeout(debounceID);
+
+								debounceID = window.setTimeout(() => {
+									proxy.value = generateMolecule(defaultGetter);
+								}, debounce);
+						  }
+						: () => {
+								proxy.value = generateMolecule(defaultGetter);
+						  }
+				);
 			}
 
 			return atomValue.proxy.value;
@@ -44,9 +55,11 @@ export const makeMolecule = <T>(
  */
 export const makeAsyncMolecule = <T>(
 	asyncGenerateMolecule: (get: typeof defaultGetter) => Promise<T>,
-	defaultValue: T
+	defaultValue: T,
+	debounce: number | undefined = undefined
 ): ATOM<T> => {
 	const atom = makeAtom(defaultValue, true);
+	let debounceID = 0;
 
 	(async () => {
 		atom.proxy.value = await asyncGenerateMolecule((atomValue, subscribed = true) => {
@@ -54,10 +67,19 @@ export const makeAsyncMolecule = <T>(
 
 			// if the user opts to not subscribe to certain atoms, then can pass false to subscribe
 			if (subscribed) {
-				atomValue.setCallback(async () => {
-					// On the second and subsequent calls whenever one of the individual atoms get updated, the generateMolecule is called again to regenerate the molecule
-					atom.proxy.value = await asyncGenerateMolecule(defaultGetter);
-				});
+				atomValue.setCallback(
+					debounce && debounce > 0
+						? () => {
+								window.clearTimeout(debounceID);
+								debounceID = window.setTimeout(async () => {
+									atom.proxy.value = await asyncGenerateMolecule(defaultGetter);
+								}, debounce);
+						  }
+						: async () => {
+								// On the second and subsequent calls whenever one of the individual atoms get updated, the generateMolecule is called again to regenerate the molecule
+								atom.proxy.value = await asyncGenerateMolecule(defaultGetter);
+						  }
+				);
 			}
 
 			return atomValue.proxy.value;

@@ -568,6 +568,19 @@ const Component1 = () => {
 }
 ```
 
+<h3 id="make-async-molecule-family"><code>Debounce</code></h3>
+
+Since the `makeAtomEffect`, `makeAsyncMolecule` and `makeMolecule` functions run automatically, sometimes when a large amount of changes are made at the same, this could result in running expensive functions multiple times. Thus there is the option to debounce these functions by waiting a set time before running them. This can be achieved by passing a time in ms as the last argument when initializing an Atom Effect or a Molecule.
+
+```tsx
+// This effect will debounce and be run 500 ms after receiving the last atom update. If an atom is updated before 500ms then the debounce timer is reset and the effect wont run.
+makeAtomEffect((get, set) => { ... }, 500); 
+
+// Equivalent debounce usage for molecules and async molecules
+makeMolecule((get, set) => { ... }, 500);
+makeAsyncMolecule((get, set) => { ... }, {},  500)
+```
+
 ## Develop
 
 To develop, you can fork this repo. 

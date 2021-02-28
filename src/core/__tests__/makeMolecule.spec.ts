@@ -78,6 +78,38 @@ describe("makeMolecule", () => {
 			pilot: "Char Azanable",
 		});
 	});
+
+	test("makeMolecule is debounced correctly", () => {
+		const msAtom = makeAtom("ZAKU");
+		const pilotAtom = makeAtom("Char");
+		const runChecker = jest.fn();
+
+		const profileMolecule = makeMolecule((get) => {
+			runChecker();
+			return {
+				ms: get(msAtom),
+				pilot: get(pilotAtom),
+			};
+		}, 500);
+
+		expect(profileMolecule.proxy.value).toStrictEqual({
+			ms: "ZAKU",
+			pilot: "Char",
+		});
+
+		msAtom.proxy.value = "Zeong";
+		msAtom.proxy.value = "Hyakku Shiki";
+		msAtom.proxy.value = "SAZABI";
+
+		jest.runAllTimers();
+
+		expect(profileMolecule.proxy.value).toStrictEqual({
+			ms: "SAZABI",
+			pilot: "Char",
+		});
+
+		expect(runChecker).toHaveBeenCalledTimes(2);
+	});
 });
 
 describe("makeAsyncMolecule", () => {
@@ -233,6 +265,56 @@ describe("makeAsyncMolecule", () => {
 			proxy: {
 				value: {
 					ms: "ZAKU",
+					pilot: "Char",
+				},
+			},
+			setCallback: expect.any(Function),
+			readOnly: true,
+		});
+	});
+
+	test("makeAsyncMolecule is debounced correctly", async () => {
+		const msAtom = makeAtom("ZAKU");
+		const pilotAtom = makeAtom("Char");
+		const runChecker = jest.fn();
+
+		const profileMolecule = makeAsyncMolecule(
+			async (get) => {
+				sleep(100);
+				runChecker();
+				return {
+					ms: get(msAtom),
+					pilot: get(pilotAtom),
+				};
+			},
+			{ ms: "", pilot: "" },
+			500
+		);
+
+		expect(profileMolecule).toStrictEqual({
+			proxy: {
+				value: {
+					ms: "",
+					pilot: "",
+				},
+			},
+			setCallback: expect.any(Function),
+			readOnly: true,
+		});
+
+		await act(async () => {
+			msAtom.proxy.value = "Zeong";
+			msAtom.proxy.value = "Hyakku Shiki";
+			msAtom.proxy.value = "SAZABI";
+
+			jest.runAllTimers();
+		});
+
+		expect(runChecker).toHaveBeenCalledTimes(2);
+		expect(profileMolecule).toStrictEqual({
+			proxy: {
+				value: {
+					ms: "SAZABI",
 					pilot: "Char",
 				},
 			},

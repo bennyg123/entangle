@@ -141,6 +141,33 @@ describe("makeAtomEffect", () => {
 		expect(msAtomValue.proxy.value).toEqual("ZAKU");
 		expect(newMSAtomValue.proxy.value).toEqual("ZAKU");
 	});
+
+	test("makeAtomEffect works with debounced functions", async () => {
+		const msAtomValue = makeAtom("ZAKU");
+		const newMSAtomValue = makeAtom("");
+		const runChecker = jest.fn();
+
+		expect(msAtomValue.proxy.value).toEqual("ZAKU");
+		expect(newMSAtomValue.proxy.value).toEqual("");
+
+		makeAtomEffect(async (get, set) => {
+			runChecker();
+			const oldValue = get(msAtomValue);
+			set(newMSAtomValue, oldValue);
+		}, 500);
+
+		msAtomValue.proxy.value = "Zeong";
+		msAtomValue.proxy.value = "Hyakku Shinki";
+		msAtomValue.proxy.value = "Sazabi";
+
+		act(() => {
+			jest.runOnlyPendingTimers();
+		});
+
+		expect(runChecker).toHaveBeenCalledTimes(2);
+		expect(msAtomValue.proxy.value).toEqual("Sazabi");
+		expect(newMSAtomValue.proxy.value).toEqual("Sazabi");
+	});
 });
 
 describe("makeAtomEffectSnapshot", () => {

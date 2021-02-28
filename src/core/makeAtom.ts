@@ -36,10 +36,22 @@ export const makeAtom = <T>(value: T, readOnly = false): ATOM<T> => {
  * @param  {ATOM_EFFECT_FN} atomEffectFn function with a getter or setter to run updates to atoms outside of a hook
  * @returns {void}
  */
-export const makeAtomEffect = (atomEffectFn: ATOM_EFFECT_FN): void => {
+export const makeAtomEffect = (atomEffectFn: ATOM_EFFECT_FN, debounce?: number): void => {
+	let debounceID = 0;
 	atomEffectFn((atomValue, subscribed = true) => {
 		if (subscribed) {
-			atomValue.setCallback(async () => await atomEffectFn(defaultGetter, defaultSetter));
+			atomValue.setCallback(
+				debounce && debounce > 0
+					? () => {
+							window.clearTimeout(debounceID);
+							debounceID = window.setTimeout(async () => {
+								await atomEffectFn(defaultGetter, defaultSetter);
+							}, debounce);
+					  }
+					: async () => {
+							await atomEffectFn(defaultGetter, defaultSetter);
+					  }
+			);
 		}
 
 		return atomValue.proxy.value;
