@@ -202,7 +202,10 @@ makeMolecule allows for subscriptions to an atoms changes for composing values b
 import { makeAtom, makeMolecule, useEntangle } from "@bennyg_123/entangle";
 
 const atomValue = makeAtom("Hello");
-const moleculeValue = makeMolecule((get) => get(atomValue) + " world");
+const atomValue2 = makeAtom("world");
+
+// In the below example, you can pass in am optional boolean as a second argument to the getter, this will un subscribe the molecule from that atoms changes
+const moleculeValue = makeMolecule((get) => get(atomValue) + get(atomValue2, false));
 
 const Component = () => {
     const [atomState, setAtomState] = useEntangle(atomValue);
@@ -275,12 +278,16 @@ You pass it a function that has a getter and setter passed to it and in it you c
 ```ts
 import { makeAtom, makeAtomEffect } from "@bennyg_123/entangle";
 
-const atomValue = makeAtom("Hello");
-const atomValue2 = makeAtom("");
+const atomValue1 = makeAtom("Hello");
+const atomValue2 = makeAtom(" World");
+
+const combinedValue = makeAtom("");
 
 makeAtomEffect((get, set) => {
     const value1 = get(atomValue);
-    set(atomValue2, value);
+    // Similar to get molecule, for the getter function, if you pass in a false boolean as the second parameter, it will not subscribe to the atoms changes
+    const value2 = get(atomValue, false);
+    set(combinedValue, value1 + value2);
 })
 ```
 

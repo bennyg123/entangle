@@ -37,8 +37,10 @@ export const makeAtom = <T>(value: T, readOnly = false): ATOM<T> => {
  * @returns {void}
  */
 export const makeAtomEffect = (atomEffectFn: ATOM_EFFECT_FN): void => {
-	atomEffectFn((atomValue) => {
-		atomValue.setCallback(async () => await atomEffectFn(defaultGetter, defaultSetter));
+	atomEffectFn((atomValue, subscribed = true) => {
+		if (subscribed) {
+			atomValue.setCallback(async () => await atomEffectFn(defaultGetter, defaultSetter));
+		}
 
 		return atomValue.proxy.value;
 	}, defaultSetter);

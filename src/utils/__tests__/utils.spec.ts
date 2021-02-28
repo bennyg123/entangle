@@ -2,7 +2,7 @@ import { makeAtom } from "../../core/makeAtom";
 import { defaultGetter, defaultSetter } from "../utils";
 
 describe("utils", () => {
-	test("defaultGetter gets valuef from atom", () => {
+	test("defaultGetter gets value from atom", () => {
 		const msAtom = makeAtom("ZAKU");
 
 		expect(defaultGetter(msAtom)).toEqual("ZAKU");

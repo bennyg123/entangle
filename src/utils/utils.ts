@@ -4,9 +4,11 @@ import { ATOM } from "../types";
  * Helper function to get the value from an atom.
  *
  * @param  {ATOM<T>} atomValue ATOM to get value from
+ * @param  {ATOM<T>} subscribed For the molecules and effects, if we dont want the atom to be subscribed we can pass in false
  * @returns {T} Value of the atom
  */
-export const defaultGetter = <T>(atomValue: ATOM<T>): T => atomValue.proxy.value;
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export const defaultGetter = <T>(atomValue: ATOM<T>, subscribed?: boolean): T => atomValue.proxy.value;
 
 /**
  * Helper function to set a new value to a supplied atom.

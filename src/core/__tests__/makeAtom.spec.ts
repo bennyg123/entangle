@@ -97,6 +97,30 @@ describe("makeAtomEffect", () => {
 		expect(newMSAtomValue.proxy.value).toEqual("SAZABI");
 	});
 
+	test("makeAtomEffect is not subscribed to atoms when passing in false", () => {
+		const pilotAtomValue = makeAtom("Char");
+		const msAtomValue = makeAtom("ZAKU");
+		const newMSAtomValue = makeAtom("");
+
+		expect(pilotAtomValue.proxy.value).toEqual("Char");
+		expect(msAtomValue.proxy.value).toEqual("ZAKU");
+		expect(newMSAtomValue.proxy.value).toEqual("");
+
+		makeAtomEffect((get, set) => {
+			const pilotValue = get(pilotAtomValue);
+			const msValue = get(msAtomValue, false);
+			set(newMSAtomValue, `${pilotValue}:${msValue}`);
+		});
+
+		expect(msAtomValue.proxy.value).toEqual("ZAKU");
+		expect(newMSAtomValue.proxy.value).toEqual("Char:ZAKU");
+
+		msAtomValue.proxy.value = "SAZABI";
+
+		expect(msAtomValue.proxy.value).toEqual("SAZABI");
+		expect(newMSAtomValue.proxy.value).toEqual("Char:ZAKU");
+	});
+
 	test("makeAtomEffect works with async functions correctly", () => {
 		const msAtomValue = makeAtom("ZAKU");
 		const newMSAtomValue = makeAtom("");

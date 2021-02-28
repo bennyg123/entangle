@@ -15,12 +15,16 @@ export const makeMolecule = <T>(
 	// Since every molecule is composed of different atoms we need to add callbacks to each of those atoms
 	// So that when any of them update, the molecule is automatically updated as well.
 	const atom = makeAtom(
-		generateMolecule((atomValue) => {
+		generateMolecule((atomValue, subscribed = true) => {
 			// On the first pass of generateMolecule execution, the updater function is called with this callback function
-			atomValue.setCallback(() => {
-				// On the second and subsequent calls whenever one of the individual atoms get updated, the generateMolecule is called again to regenerate the molecule
-				proxy.value = generateMolecule(defaultGetter);
-			});
+
+			// If we dont want the molecule to subscribe to a certain atoms changes we can pass in false to subscribed
+			if (subscribed) {
+				atomValue.setCallback(() => {
+					// On the second and subsequent calls whenever one of the individual atoms get updated, the generateMolecule is called again to regenerate the molecule
+					proxy.value = generateMolecule(defaultGetter);
+				});
+			}
 
 			return atomValue.proxy.value;
 		}),
@@ -45,12 +49,16 @@ export const makeAsyncMolecule = <T>(
 	const atom = makeAtom(defaultValue, true);
 
 	(async () => {
-		atom.proxy.value = await asyncGenerateMolecule((atomValue) => {
+		atom.proxy.value = await asyncGenerateMolecule((atomValue, subscribed = true) => {
 			// On the first pass of generateMolecule execution, the updater function is called with this callback function
-			atomValue.setCallback(async () => {
-				// On the second and subsequent calls whenever one of the individual atoms get updated, the generateMolecule is called again to regenerate the molecule
-				atom.proxy.value = await asyncGenerateMolecule(defaultGetter);
-			});
+
+			// if the user opts to not subscribe to certain atoms, then can pass false to subscribe
+			if (subscribed) {
+				atomValue.setCallback(async () => {
+					// On the second and subsequent calls whenever one of the individual atoms get updated, the generateMolecule is called again to regenerate the molecule
+					atom.proxy.value = await asyncGenerateMolecule(defaultGetter);
+				});
+			}
 
 			return atomValue.proxy.value;
 		});

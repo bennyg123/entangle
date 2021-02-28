@@ -49,6 +49,35 @@ describe("makeMolecule", () => {
 			pilot: "Char",
 		});
 	});
+
+	test("makeMolecule is not subscribed to atom changes when passed false", () => {
+		const msAtom = makeAtom("ZAKU");
+		const pilotAtom = makeAtom("Char");
+
+		const profileMolecule = makeMolecule((get) => ({
+			ms: get(msAtom, false),
+			pilot: get(pilotAtom),
+		}));
+
+		expect(profileMolecule.proxy.value).toStrictEqual({
+			ms: "ZAKU",
+			pilot: "Char",
+		});
+
+		msAtom.proxy.value = "SAZABI";
+
+		expect(profileMolecule.proxy.value).toStrictEqual({
+			ms: "ZAKU",
+			pilot: "Char",
+		});
+
+		pilotAtom.proxy.value = "Char Azanable";
+
+		expect(profileMolecule.proxy.value).toStrictEqual({
+			ms: "SAZABI",
+			pilot: "Char Azanable",
+		});
+	});
 });
 
 describe("makeAsyncMolecule", () => {
@@ -145,6 +174,65 @@ describe("makeAsyncMolecule", () => {
 			proxy: {
 				value: {
 					ms: "SAZABI",
+					pilot: "Char",
+				},
+			},
+			setCallback: expect.any(Function),
+			readOnly: true,
+		});
+	});
+
+	test("makeAsyncMolecule is not subscribed to changes when passing in false to subscribed", async () => {
+		const msAtom = makeAtom("ZAKU");
+		const pilotAtom = makeAtom("Char");
+
+		const profileMolecule = makeAsyncMolecule(
+			async (get) => {
+				sleep(100);
+				return {
+					ms: get(msAtom, false),
+					pilot: get(pilotAtom),
+				};
+			},
+			{ ms: "", pilot: "" }
+		);
+
+		await act(async () => {
+			jest.runAllTimers();
+		});
+
+		expect(profileMolecule).toStrictEqual({
+			proxy: {
+				value: {
+					ms: "ZAKU",
+					pilot: "Char",
+				},
+			},
+			setCallback: expect.any(Function),
+			readOnly: true,
+		});
+
+		msAtom.proxy.value = "SAZABI";
+
+		expect(profileMolecule).toStrictEqual({
+			proxy: {
+				value: {
+					ms: "ZAKU",
+					pilot: "Char",
+				},
+			},
+			setCallback: expect.any(Function),
+			readOnly: true,
+		});
+
+		await act(async () => {
+			jest.runAllTimers();
+		});
+
+		expect(profileMolecule).toStrictEqual({
+			proxy: {
+				value: {
+					ms: "ZAKU",
 					pilot: "Char",
 				},
 			},

@@ -2,7 +2,10 @@ import { defaultGetter } from "./utils/utils";
 
 export type ATOM_CALLBACK<T> = (newValue: T) => void;
 
-export type ATOM_EFFECT_FN = (get: <T>(atomValue: ATOM<T>) => T, set: <T>(atomValue: ATOM<T>, newValue: T) => T) => void;
+export type ATOM_EFFECT_FN = (
+	get: <T>(atomValue: ATOM<T>, subscribed?: boolean) => T,
+	set: <T>(atomValue: ATOM<T>, newValue: T) => T
+) => void;
 
 export type ATOM<T> = {
 	proxy: { value: T };
