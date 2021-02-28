@@ -41,6 +41,7 @@ Global state management tool for react hooks inspired by [RecoilJS](https://gith
     - [`makeAtomFamily`](#make-atom-family)
     - [`makeMoleculeFamily`](#make-molecule-family)
     - [`makeAsyncMoleculeFamily`](#make-async-molecule-family)
+    - [`Debounce`](#debounce-molecules-effects)
   - [Develop](#develop)
   - [Footnotes](#footnotes)
 
@@ -568,7 +569,7 @@ const Component1 = () => {
 }
 ```
 
-<h3 id="make-async-molecule-family"><code>Debounce</code></h3>
+<h3 id="debounce-molecules-effects"><code>Debounce</code></h3>
 
 Since the `makeAtomEffect`, `makeAsyncMolecule` and `makeMolecule` functions run automatically, sometimes when a large amount of changes are made at the same, this could result in running expensive functions multiple times. Thus there is the option to debounce these functions by waiting a set time before running them. This can be achieved by passing a time in ms as the last argument when initializing an Atom Effect or a Molecule.
 
