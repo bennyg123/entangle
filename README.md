@@ -232,7 +232,7 @@ const moleculeValue = makeMolecule((get) => get(atomValue) + " world");
 const Component = () => {
     const [atomState, setAtomState] = useEntangle(atomValue);
     const [moleculeState, setMoleculeState] = useEntangle(moleculeValue); // not recommended
-    const readOnlyMoleculeState = useReadEntangle(moleculeValue); // not recommended
+    const readOnlyMoleculeState = useReadEntangle(moleculeValue);
     
     return (
         <div>
@@ -240,6 +240,7 @@ const Component = () => {
             <button onClick={() => setMoleculeState("Hello, 世界")}>Throws an error</button>
             <h1>{atomState}</h1>
             <h1>{moleculeState}</h1>
+            <h1>{readOnlyMoleculeState}</h1>
         </div>
     );
 }
